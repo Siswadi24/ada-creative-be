@@ -1,0 +1,7 @@
+@import "tailwindcss" theme(static);
+@import "@nuxt/ui";
+@import "flowbite/src/themes/default";
+
+body {
+  font-family: "Montserrat Alternates", sans-serif;
+}
