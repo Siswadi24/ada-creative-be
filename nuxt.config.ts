@@ -5,38 +5,38 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   modules: ['@nuxt/eslint', '@nuxt/fonts', '@nuxt/image', '@nuxt/ui', "@pinia/nuxt", '@vite-pwa/nuxt'],
-  // pwa:{
-  //   manifest: {
-  //     name: 'Grosiin',
-  //     short_name: 'Grosiin',
-  //     description: 'Grosiin - Your one-stop shop for all your needs',
-  //     theme_color: '#ffffff',
-  //     background_color: '#ffffff',
-  //     display: 'standalone',
-  //     lang: 'en',
-  //     start_url: '/',
-  //     icons: [
-  //       {
-  //         src: '/logo/Logo-Grosiin.png',
-  //         sizes: '512x512',
-  //         type: 'image/png'
-  //       },
-  //       {
-  //         src: '/logo/Logo-Grosiin.png',
-  //         sizes: '192x192',
-  //         type: 'image/png'
-  //       }
-  //     ]
-  //   },
-  //   workbox: {
-  //     navigateFallback: '/',
-  //     navigateFallbackDenylist: [/^\/api/, /^\/login/],
-  //   },
-  //   devOptions: {
-  //     enabled: true,
-  //     type: 'module',
-  //   }
-  // },
+  pwa:{
+    manifest: {
+      name: 'Grosiin',
+      short_name: 'Grosiin',
+      description: 'Grosiin - Your one-stop shop for all your needs',
+      theme_color: '#ffffff',
+      background_color: '#ffffff',
+      display: 'standalone',
+      lang: 'en',
+      start_url: '/',
+      icons: [
+        {
+          src: '/logo/Logo-Grosiin.png',
+          sizes: '512x512',
+          type: 'image/png'
+        },
+        {
+          src: '/logo/Logo-Grosiin.png',
+          sizes: '192x192',
+          type: 'image/png'
+        }
+      ]
+    },
+    workbox: {
+      navigateFallback: '/',
+      navigateFallbackDenylist: [/^\/api/, /^\/login/],
+    },
+    devOptions: {
+      enabled: true,
+      type: 'module',
+    }
+  },
   app: {
     head: {
       charset: 'utf-8',
