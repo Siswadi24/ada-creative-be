@@ -59,14 +59,15 @@
 
         <!-- Tombol ke halaman payment/invoice -->
         <div class="flex justify-end gap-2">
-          <!-- <UButton
+          <UButton
             color="gray"
             size="sm"
-            class="flex-1"
-            @click="openDetail(order.id)"
+            class="bg-blue-500 text-white hover:bg-blue-600"
+            @click="navigateTo(`/orders/details/${order.id}`)"
           >
+            <UIcon name="i-heroicons-eye" class="text-white" />
             Lihat Detail
-          </UButton> -->
+          </UButton>
 
           <!-- Jika status cancelled, tidak tampilkan tombol lain -->
           <template v-if="order.status !== 'cancelled'">
@@ -110,13 +111,6 @@
         </div>
       </div>
     </div>
-
-    <!-- <OrderModal
-      v-if="selectedOrder"
-      :is-open="showModal"
-      :order="selectedOrder"
-      @update:is-open="showModal = $event"
-    /> -->
   </UContainer>
 </template>
 
@@ -132,24 +126,6 @@ const { data } = await useApi("/server/api/orders", {
 
 const orders = computed(() => data.value?.data || []);
 
-// State modal
-const showModal = ref(false);
-const selectedOrder = ref(null);
-
-// Buka detail
-async function openDetail(orderId) {
-  try {
-    const detail = await useApi(`/server/api/orders/${orderId}`, {
-      method: "GET",
-    });
-    selectedOrder.value = detail.data || detail;
-    showModal.value = true;
-  } catch (err) {
-    console.error("Gagal ambil detail order:", err);
-    alert("Gagal ambil detail order");
-  }
-}
-
 // Format angka
 function formatNumber(num) {
   return new Intl.NumberFormat("id-ID").format(num);
@@ -160,10 +136,6 @@ const statusMap = {
   pending: { color: "info", label: "Pesanan Diproses" },
   completed: { color: "success", label: "Pesanan Selesai" },
   cancelled: { color: "danger", label: "Pesanan Dibatalkan" },
-  waiting_payment: {
-    color: "warning",
-    label: "Pesanan Menunggu Pembayaran",
-  },
 };
 
 // Warna status pembayaran
@@ -171,9 +143,5 @@ const paymentStatusMap = {
   unpaid: { color: "warning", label: "Pembayaran Belum Dibayar" },
   paid: { color: "success", label: "Pembayaran Sudah Dibayar" },
   failed: { color: "danger", label: "Pembayaran Gagal" },
-  waiting_confirmation: {
-    color: "warning",
-    label: "Pembayaran Menunggu Konfirmasi",
-  },
 };
 </script>

@@ -27,13 +27,13 @@
       <span class="text-xs sm:text-sm font-medium truncate">Layanan</span>
     </NuxtLink>
     
-    <NuxtLink 
+    <!-- <NuxtLink 
       to="/contact" 
       class="flex flex-col items-center px-2 py-2 rounded-lg text-gray-600 min-w-0 flex-shrink-0"
     >
       <span><Icon name="i-lucide-phone" class="text-xl sm:text-2xl mb-1" /></span>
       <span class="text-xs sm:text-sm font-medium truncate">Kontak</span>
-    </NuxtLink>
+    </NuxtLink> -->
     
     <NuxtLink 
       to="/profile" 

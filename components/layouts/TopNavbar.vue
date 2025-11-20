@@ -40,12 +40,12 @@
                 class="block py-2 px-3 text-black/80 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0"
               >Layanan</NuxtLink>
             </li>
-            <li>
+            <!-- <li>
               <NuxtLink
                 to="/contact"
                 class="block py-2 px-3 text-black/80 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0"
               >Kontak</NuxtLink>
-            </li>
+            </li> -->
             <li>
               <NuxtLink
                 to="/profile"
