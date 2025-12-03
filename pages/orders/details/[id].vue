@@ -1,18 +1,19 @@
 <template>
   <UContainer class="py-6 space-y-6">
     <div class="flex items-center justify-between">
-      <div>
-        <h1 class="text-xl font-bold">Detail Pesanan #{{ route.params.id }}</h1>
-        <p v-if="order" class="text-xs text-gray-500">
-          {{
-            new Date(order.created_at || order.invoice_date).toLocaleString(
-              "id-ID"
-            )
-          }}
-        </p>
+      <div class="flex items-center gap-3">
+        <UIcon name="i-heroicons-document-text" class="w-6 h-6 text-blue-600" />
+        <div>
+          <h1 class="text-2xl font-bold">Detail Pesanan</h1>
+          <p v-if="order" class="text-sm text-gray-500">
+            <span class="font-medium">#{{ route.params.id }}</span>
+            <span class="text-gray-400">•</span>
+            <span>{{ formatDate(order.created_at || "") }}</span>
+          </p>
+        </div>
       </div>
 
-      <div v-if="order" class="flex gap-2">
+      <div v-if="order" class="flex flex-wrap gap-2">
         <UBadge
           :color="statusMap[order.status]?.color || 'gray'"
           variant="subtle"
@@ -34,103 +35,180 @@
     </div>
 
     <div v-if="pending" class="text-gray-500">Memuat data pesanan...</div>
-    <div v-else-if="!order" class="space-y-4">
-      <p class="text-gray-600">Order tidak ditemukan.</p>
+    <div v-else-if="!order" class="flex flex-col items-center gap-3 py-10">
+      <NuxtImg
+        width="280"
+        format="webp"
+        src="/assets/no-data-found.png"
+        class="opacity-90"
+      />
+      <p class="text-gray-600">Order tidak ditemukan</p>
       <UButton color="gray" @click="router.back()">Kembali</UButton>
     </div>
 
     <div v-else class="space-y-6">
-      <!-- Info Invoice & Order -->
-      <div class="border rounded-md p-4 space-y-2">
-        <p>
-          <strong>Invoice:</strong> {{ order.invoice_number }}
-          <span v-if="order.invoice_date">
-            ({{
-              new Date(order.invoice_date).toLocaleDateString("id-ID")
-            }})</span
-          >
-        </p>
-        <p><strong>Alamat:</strong> {{ order.address }}</p>
-        <p><strong>Catatan:</strong> {{ order.note || "-" }}</p>
-        <p v-if="order.paid_at">
-          <strong>Dibayar:</strong>
-          {{ new Date(order.paid_at).toLocaleString("id-ID") }}
-        </p>
-      </div>
-
-      <!-- Pengiriman -->
-      <div class="border rounded-md p-4 space-y-1">
-        <p class="font-semibold">Pengiriman</p>
-        <p>
-          <strong>Status Pengiriman:</strong>
-          {{
-            shippingStatusMap[order.shipping_status]?.label ||
-            order.shipping_status
-          }}
-        </p>
-        <p v-if="order.delivery_status">
-          <strong>Status Penerimaan:</strong>
-          {{
-            deliveryStatusMap[order.delivery_status]?.label ||
-            order.delivery_status
-          }}
-        </p>
-        <p v-if="order.tracking_number">
-          <strong>No. Resi:</strong> {{ order.tracking_number }}
-        </p>
-        <p v-if="order.shipping_cost">
-          <strong>Biaya Kirim:</strong> Rp{{
-            formatNumber(order.shipping_cost)
-          }}
-        </p>
-      </div>
-
-      <!-- Items -->
-      <div class="border rounded-md p-4 space-y-2">
-        <p class="font-semibold">Daftar Produk</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div
-          v-for="item in order.items"
-          :key="item.id"
-          class="flex justify-between text-sm"
+          :class="[
+            'bg-white border rounded-2xl p-5 shadow-sm',
+            orderStatusClass(order),
+          ]"
         >
-          <span
-            >{{ item.product?.name || "Produk" }} (x{{ item.quantity }})</span
-          >
-          <span>Rp{{ formatNumber(item.subtotal) }}</span>
+          <div class="flex items-center gap-2 mb-3">
+            <UIcon
+              name="i-heroicons-receipt-percent"
+              class="w-5 h-5 text-gray-600"
+            />
+            <p class="font-semibold">Ringkasan Pesanan</p>
+          </div>
+          <div class="space-y-2 text-sm">
+            <p>
+              <span class="text-gray-500">Invoice</span>:
+              <span class="font-medium">{{ order.invoice_number }}</span>
+              <span v-if="order.invoice_date" class="text-gray-400">
+                ({{ formatDate(order.invoice_date) }})</span
+              >
+            </p>
+            <p>
+              <span class="text-gray-500">Alamat</span>: {{ order.address }}
+            </p>
+            <p>
+              <span class="text-gray-500">Catatan</span>:
+              {{ order.note || "-" }}
+            </p>
+            <p v-if="order.paid_at">
+              <span class="text-gray-500">Dibayar</span>:
+              {{ formatDateTime(order.paid_at) }}
+            </p>
+          </div>
         </div>
-        <div class="flex justify-between font-bold border-t pt-3">
-          <span>Total</span>
-          <span>Rp{{ formatNumber(order.total ?? order.total_price) }}</span>
+
+        <div class="bg-white border rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center gap-2 mb-3">
+            <UIcon name="i-heroicons-truck" class="w-5 h-5 text-gray-600" />
+            <p class="font-semibold">Pengiriman</p>
+          </div>
+          <div class="space-y-2 text-sm">
+            <p>
+              <span class="text-gray-500">Status Pengiriman</span>:
+              {{
+                shippingStatusMap[order.shipping_status]?.label ||
+                order.shipping_status
+              }}
+            </p>
+            <p v-if="order.delivery_status">
+              <span class="text-gray-500">Status Penerimaan</span>:
+              {{
+                deliveryStatusMap[order.delivery_status]?.label ||
+                order.delivery_status
+              }}
+            </p>
+            <p v-if="order.tracking_number">
+              <span class="text-gray-500">No. Resi</span>:
+              {{ order.tracking_number }}
+            </p>
+            <p v-if="order.shipping_cost">
+              <span class="text-gray-500">Biaya Kirim</span>:
+              <span class="font-medium"
+                >Rp{{ formatNumber(order.shipping_cost) }}</span
+              >
+            </p>
+          </div>
         </div>
       </div>
 
-      <!-- Payments -->
-      <div class="border rounded-md p-4 space-y-2">
-        <p class="font-semibold">Pembayaran</p>
-        <template v-if="order.payments && order.payments.length">
+      <div class="bg-white border rounded-2xl p-5 shadow-sm">
+        <div class="flex items-center gap-2 mb-3">
+          <UIcon name="i-heroicons-cube" class="w-5 h-5 text-gray-600" />
+          <p class="font-semibold">Daftar Produk</p>
+        </div>
+        <div class="divide-y divide-gray-100 rounded-lg border border-gray-100">
+          <div
+            v-for="item in order.items"
+            :key="item.id"
+            class="flex justify-between items-center px-4 py-2 text-sm"
+          >
+            <span class="text-gray-700 truncate"
+              >{{ item.product?.name || "Produk" }} (x{{ item.quantity }})</span
+            >
+            <span class="font-medium text-gray-900"
+              >Rp{{ formatNumber(item.subtotal) }}</span
+            >
+          </div>
+        </div>
+        <div class="flex justify-between items-center pt-3">
+          <span class="text-gray-600">Total</span>
+          <span class="text-lg font-semibold text-blue-700"
+            >Rp{{ formatNumber(order.total_price) }}</span
+          >
+        </div>
+      </div>
+
+      <div class="bg-white border rounded-2xl p-5 shadow-sm">
+        <div class="flex items-center gap-2 mb-3">
+          <UIcon name="i-heroicons-banknotes" class="w-5 h-5 text-gray-600" />
+          <p class="font-semibold">Pembayaran</p>
+        </div>
+        <div
+          v-if="order.payments && order.payments.length"
+          class="divide-y divide-gray-100 rounded-lg border border-gray-100"
+        >
           <div
             v-for="p in order.payments"
             :key="p.id"
-            class="flex justify-between text-sm"
+            class="flex justify-between items-center px-4 py-2 text-sm"
           >
-            <span>{{ new Date(p.payment_date).toLocaleString("id-ID") }}</span>
-            <span>Rp{{ formatNumber(p.amount) }}</span>
+            <span class="text-gray-700">{{
+              formatDateTime(p.payment_date)
+            }}</span>
+            <span class="font-medium">Rp{{ formatNumber(p.amount) }}</span>
           </div>
-        </template>
+        </div>
+        <p v-else-if="order.payment_status === 'failed'">Pembayaran telah digagalkan.</p>
         <p v-else class="text-gray-500">Belum ada pembayaran.</p>
       </div>
 
-      <!-- Actions -->
-      <div class="flex gap-2">
+      <div class="flex flex-wrap gap-2 justify-end">
+        <UButton
+          v-if="
+            order.status !== 'cancelled' &&
+            order.delivery_status === 'delivered'
+          "
+          color="success"
+          @click="navigateTo(`/confirmpenerimaanbarang/${order.id}`)"
+        >
+          <UIcon name="i-heroicons-check-circle" />
+          Konfirmasi Penerimaan Barang
+        </UButton>
+        <UButton
+          v-if="order.status === 'confirmed' && order.payment_status === 'paid'"
+          color="gray"
+          variant="solid"
+          @click="navigateTo(`/payment/${order.id}`)"
+        >
+          <UIcon name="i-heroicons-ticket" />
+          Lihat Invoice
+        </UButton>
+        <UButton
+          v-if="order.payment_status !== 'paid' && order.payment_status !== 'failed'"
+          color="primary"
+          @click="navigateTo(`/payment/${order.id}`)"
+        >
+          <UIcon name="i-heroicons-credit-card" />
+          Info Pembayaran
+        </UButton>
         <UButton
           v-if="safeUrl(order?.invoice_url)"
           color="primary"
+          variant="soft"
           @click="openInvoice(order.invoice_url)"
-          >Buka Invoice</UButton
         >
-        <UButton color="gray" variant="subtle" @click="router.back()"
-          >Kembali</UButton
-        >
+          <UIcon name="i-heroicons-document" />
+          Buka Invoice
+        </UButton>
+        <UButton color="gray" variant="subtle" @click="router.back()">
+          Kembali
+        </UButton>
       </div>
     </div>
   </UContainer>
@@ -154,6 +232,32 @@ const order = computed(() =>
 function formatNumber(num) {
   const n = Number(num);
   return new Intl.NumberFormat("id-ID").format(isNaN(n) ? num : n);
+}
+
+function formatDate(date) {
+  try {
+    return new Date(date).toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  } catch (e) {
+    return new Date(date).toLocaleDateString("id-ID");
+  }
+}
+
+function formatDateTime(date) {
+  try {
+    return new Date(date).toLocaleString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch (e) {
+    return new Date(date).toLocaleString("id-ID");
+  }
 }
 
 function safeUrl(u) {
@@ -189,7 +293,16 @@ const deliveryStatusMap = {
   shipped: { color: "info", label: "Dikirim" },
   delivered: { color: "success", label: "Sudah Diterima" },
 };
+
+function orderStatusClass(order) {
+  const map = {
+    pending: "border-yellow-200",
+    confirmed: "border-blue-200",
+    cancelled: "border-red-200",
+    completed: "border-green-200",
+  };
+  return map[order.status] || "border-gray-200";
+}
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

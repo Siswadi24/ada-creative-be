@@ -78,105 +78,15 @@
               :slug="product.slug"
             />
           </div>
-          
-          <!-- Pagination Controls -->
-          <div 
-            v-if="products.meta && products.meta.last_page > 1" 
-            class="flex justify-center items-center gap-2 my-8"
-          >
-            <!-- Previous Button -->
-            <button
-              @click="goToPrevPage"
-              :disabled="currentPage <= 1 || isLoadingMore"
-              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <Icon name="i-lucide-chevron-left" class="text-lg" />
-            </button>
-            
-            <!-- Page Numbers -->
-            <div class="flex gap-1">
-              <!-- First page -->
-              <button
-                v-if="currentPage > 3"
-                @click="goToPage(1)"
-                :disabled="isLoadingMore"
-                class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 transition-colors"
-              >
-                1
-              </button>
-              
-              <!-- Ellipsis -->
-              <span v-if="currentPage > 4" class="px-2 py-2 text-gray-500">...</span>
-              
-              <!-- Previous page -->
-              <button
-                v-if="currentPage > 1"
-                @click="goToPage(currentPage - 1)"
-                :disabled="isLoadingMore"
-                class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 transition-colors"
-              >
-                {{ currentPage - 1 }}
-              </button>
-              
-              <!-- Current page -->
-              <button
-                class="px-3 py-2 bg-purple-600 text-white rounded-lg cursor-default"
-              >
-                {{ currentPage }}
-              </button>
-              
-              <!-- Next page -->
-              <button
-                v-if="currentPage < products.meta.last_page"
-                @click="goToPage(currentPage + 1)"
-                :disabled="isLoadingMore"
-                class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 transition-colors"
-              >
-                {{ currentPage + 1 }}
-              </button>
-              
-              <!-- Ellipsis -->
-              <span v-if="currentPage < products.meta.last_page - 3" class="px-2 py-2 text-gray-500">...</span>
-              
-              <!-- Last page -->
-              <button
-                v-if="currentPage < products.meta.last_page - 2"
-                @click="goToPage(products.meta.last_page)"
-                :disabled="isLoadingMore"
-                class="px-3 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 transition-colors"
-              >
-                {{ products.meta.last_page }}
-              </button>
-            </div>
-            
-            <!-- Next Button -->
-            <button
-              @click="goToNextPage"
-              :disabled="currentPage >= products.meta.last_page || isLoadingMore"
-              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <Icon name="i-lucide-chevron-right" class="text-lg" />
-            </button>
-          </div>
-          
-          <!-- Loading indicator for pagination -->
           <div
             v-if="isLoadingMore"
-            class="flex justify-center mt-4"
+            class="col-span-full flex justify-center mt-4"
           >
             <NuxtImg
               src="/assets/loading.gif"
-              alt="Loading..."
+              alt="Loading more..."
               class="w-12 h-12"
             />
-          </div>
-          
-          <!-- Page info -->
-          <div 
-            v-if="products.meta && products.data.length > 0" 
-            class="text-center text-gray-500 text-sm mt-4"
-          >
-            Menampilkan {{ products.meta.per_page }} - {{ products.meta.to }} dari {{ products.meta.total }} produk
           </div>
         </UContainer>
       </section>
@@ -194,7 +104,8 @@ const showSearchView = ref(false);
 const scrollContainer = ref(null);
 const showLeftArrow = ref(false);
 const showRightArrow = ref(true);
-const currentPage = ref(1);
+const visibleCount = ref(8); // Awalnya tampilkan 8
+const increment = 6;
 const isLoadingMore = ref(false);
 
 useSeoMeta({
@@ -205,22 +116,18 @@ useSeoMeta({
   keywords: "produk grosir, grosirin, belanja grosir, harga grosir",
 });
 
-const { status: statusProducts, data: productsData, refresh: refreshProducts } = useApi(
+const { status: statusProducts, data: productsData } = useApi(
   "/server/api/products",
   {
     immediate: true,
-    query: {
-      page: currentPage,
-      per_page: 10,
-    }
   }
 );
 
 const products = computed(() => {
-  if (statusProducts.value === "success" && productsData.value) {
+  if (statusProducts.value === "success") {
     return productsData.value;
   }
-  return { data: [], meta: null };
+  return [];
 });
 
 const productStore = useProductStore();
@@ -231,7 +138,7 @@ watchEffect(() => {
 });
 
 const visibleProducts = computed(() => {
-  return products.value.data || [];
+  return products.value.data?.slice(0, visibleCount.value) || [];
 });
 
 // Fetch cart count dari API
@@ -244,35 +151,22 @@ const countCart = computed(() => {
   return cartData.value?.items?.data?.length || 0;
 });
 
-// const handleInfiniteScroll = async () => {
-//   // Infinite scroll functionality removed - using pagination instead
-// };
+const handleInfiniteScroll = async () => {
+  const scrollBottom =
+    window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
 
-// Pagination functions
-const goToPage = async (page) => {
-  if (page < 1 || page > products.value.meta?.last_page) return;
-  
-  isLoadingMore.value = true;
-  currentPage.value = page;
-  
-  try {
-    await refreshProducts();
-  } catch (error) {
-    console.error('Error loading page:', error);
-  } finally {
+  if (
+    scrollBottom &&
+    !isLoadingMore.value &&
+    visibleCount.value < products.value.data?.length
+  ) {
+    isLoadingMore.value = true;
+
+    // simulasi delay loading
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    visibleCount.value += increment;
     isLoadingMore.value = false;
-  }
-};
-
-const goToNextPage = () => {
-  if (currentPage.value < products.value.meta?.last_page) {
-    goToPage(currentPage.value + 1);
-  }
-};
-
-const goToPrevPage = () => {
-  if (currentPage.value > 1) {
-    goToPage(currentPage.value - 1);
   }
 };
 
@@ -306,7 +200,7 @@ const _scrollRight = () => {
 onMounted(() => {
   window.addEventListener("scroll", handleWindowScroll);
   window.addEventListener("resize", handleCategoryScroll);
-  // Removed infinite scroll event listener
+  window.addEventListener("scroll", handleInfiniteScroll);
 
   const hasSearchQuery = route.query.search || route.query.category;
   if (hasSearchQuery) {
@@ -324,7 +218,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", handleWindowScroll);
   window.removeEventListener("resize", handleCategoryScroll);
-  // Removed infinite scroll event listener cleanup
+  window.removeEventListener("scroll", handleInfiniteScroll);
 });
 
 // Gunakan posisi top-24 seperti sebelumnya

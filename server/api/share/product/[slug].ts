@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, 'slug')
 
   // Base URL API backend
-  const apiBaseUrl = process.env.NUXT_BASE_URL || 'http://103.250.11.117'
+  const apiBaseUrl = process.env.NUXT_BASE_URL
 
   // Ambil semua produk
   const productResponse = await $fetch<ProductResponse>(`${apiBaseUrl}/api/products`)

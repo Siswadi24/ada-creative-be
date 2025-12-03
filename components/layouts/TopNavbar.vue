@@ -7,8 +7,7 @@
             v-if="settings.logo_path"
             :src="`${baseUrl}storage/${settings.logo_path}`"
             alt="Logo Grosiin"
-            width="45"
-            height="15"
+            width="120"
             class="object-contain"
             format="webp"
           />

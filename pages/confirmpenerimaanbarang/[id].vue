@@ -8,18 +8,23 @@
           color="gray"
           @click="$router.back()"
         />
-        <h1 class="text-xl font-bold">
-            Konfirmasi Penerimaan Barang
-        </h1>
+        <h1 class="text-xl font-bold">Konfirmasi Penerimaan Barang</h1>
       </div>
 
-      <UCard class="mt-6 max-w-lg mx-auto p-6 space-y-4">
-        <!-- Upload bukti penerimaan -->
+      <UCard class="mt-6 max-w-lg mx-auto p-6 space-y-4 bg-white">
         <div>
           <label class="block font-medium mb-1"
             >Upload Bukti Penerimaan Barang</label
           >
-          <UInput class="w-full" type="file" accept="image/*" @change="handleFileUpload" />
+          <UInput
+            :ui="{
+              base: 'bg-white text-black/85',
+            }"
+            class="w-full text-white"
+            type="file"
+            accept="image/*"
+            @change="handleFileUpload"
+          />
           <div v-if="previewUrl" class="mt-3">
             <img
               :src="previewUrl"
@@ -29,18 +34,19 @@
           </div>
         </div>
 
-        <!-- Catatan tambahan -->
         <div>
           <label class="flex font-medium mb-1">Catatan (Opsional)</label>
           <UTextarea
             v-model="form.note"
+            :ui="{
+              base: 'bg-white text-black/85',
+            }"
             placeholder="Tambahkan catatan penerimaan..."
             class="w-full"
           />
         </div>
 
-        <!-- Tombol Kirim -->
-        <div class="flex justify-end mt-4">
+        <div class="flex justify-end mt-4 cursor-pointer">
           <UButton
             color="primary"
             size="md"

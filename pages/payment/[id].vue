@@ -259,7 +259,7 @@ definePageMeta({
 });
 
 const route = useRoute();
-const orderId = route.params.id;
+const orderId = computed(() => route.params.id);
 const order = ref(null);
 const amount = ref("");
 const file = ref(null);
