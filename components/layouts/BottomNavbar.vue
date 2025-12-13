@@ -1,7 +1,6 @@
 <template>
   <nav
-    class="fixed bottom-0 z-10 w-full max-w-md mx-auto bg-gray-100 border-t-2 border-gray-300 flex justify-around p-3 text-sm 
-           rounded-t-2xl shadow-lg"
+    class="fixed bottom-0 left-0 right-0 z-10 w-full bg-gray-100 border-t-2 border-gray-300 flex justify-around p-3 text-sm rounded-t-2xl shadow-lg"
   >
     <NuxtLink 
       to="/" 

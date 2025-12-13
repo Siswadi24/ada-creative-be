@@ -63,7 +63,7 @@ import { computed } from "vue"
 import { NuxtLink } from "#components"
 import { useApi } from "~/composables/use-api"
 
-const baseUrl = "https://api-grosiin.adacreativee.com/"
+const baseUrl = "https://backend-api.alokastore.com/"
 
 // ambil data settings dari API (kayak footer)
 const { data: settingsData, pending: settingsPending, error: settingsError } =

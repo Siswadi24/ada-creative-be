@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
 
-  modules: ['@nuxt/eslint', '@nuxt/fonts', '@nuxt/image', '@nuxt/ui', "@pinia/nuxt", '@vite-pwa/nuxt'],
+  modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/ui', "@pinia/nuxt", '@vite-pwa/nuxt'],
   pwa:{
     manifest: {
       name: 'Grosiin',
@@ -29,7 +29,7 @@ export default defineNuxtConfig({
       ]
     },
     workbox: {
-      navigateFallback: '/',
+      navigateFallback: undefined,
       navigateFallbackDenylist: [/^\/api/, /^\/login/],
     },
     devOptions: {
@@ -72,12 +72,14 @@ export default defineNuxtConfig({
     }
   },
   routeRules: {
-    "/server/**": { proxy: `${import.meta.env.NUXT_BASE_URL}/**` },
+    "/server/**": { proxy: `${process.env.NUXT_BASE_URL}/**` },
+    "/registration/**": { ssr: false },
+    "/cart": { ssr: false },
   },
   // routeRules: {
-  //   '/server/**': { proxy: `${import.meta.env.NUXT_BASE_URL}/**` },
+  //   '/api/**': { proxy: `${import.meta.env.NUXT_BASE_URL}/**` },
   // }
   // routeRules: {
-  //   '/server/**': { proxy: `${process.env.NUXT_PUBLIC_API_BASE}/**` },
+  //   '/api/**': { proxy: `${process.env.NUXT_PUBLIC_API_BASE}/**` },
   // },
 })

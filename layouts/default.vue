@@ -19,7 +19,8 @@
   @apply flex flex-col;
   @apply min-h-screen;
   @apply pb-[58px] md:pb-0;
-  min-width: fit-content;
+  @apply w-full;
+  min-width: 0;
   @apply bg-white;
 }
 

@@ -5,7 +5,7 @@
       <div class="text-center py-8">
         <div class="mb-4">
           <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="text-white font-bold text-xl">G</span>
+            <span class="text-white font-bold text-xl">CS</span>
           </div>
           <h1 class="text-3xl font-bold text-gray-800 mb-2">
             Customer Support
@@ -67,7 +67,7 @@
       </div>
 
       <!-- Contact Information Section -->
-      <div class="mb-8">
+      <div class="mb-8 pb-3">
         <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">
           Hubungi Kami
         </h2>
@@ -77,13 +77,13 @@
             <div class="space-y-4">
               <div
                 class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                @click="copyToClipboard('support@grosiin.com')">
+                @click="copyToClipboard('myalokastore@gmail.com')">
                 <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center mr-3">
                   <Icon name="mdi:email" class="w-5 h-5 text-white" />
                 </div>
                 <div class="flex-1">
                   <h4 class="font-semibold text-gray-800">Email Support</h4>
-                  <p class="text-gray-600 text-sm">support@grosiin.com</p>
+                  <p class="text-gray-600 text-sm">myalokastore@gmail.com</p>
                 </div>
                 <Icon name="mdi:content-copy" class="w-4 h-4 text-gray-400" />
               </div>

@@ -1,8 +1,8 @@
 <template>
-  <UContainer class="py-6">
-    <div class="max-w-md mx-auto space-y-6">
+  <UContainer class="py-6 pb-20 sm:pb-6">
+    <div class="max-w-md w-full mx-auto space-y-6">
       <!-- Header -->
-      <div class="flex items-center gap-3">
+      <div class="flex flex-wrap items-center gap-3">
         <button
           type="button"
           @click="router.push('/profile')"
@@ -10,7 +10,7 @@
         >
           <Icon name="lucide:arrow-left" />
         </button>
-        <h1 class="text-xl font-bold">Edit Profile</h1>
+        <h1 class="text-xl font-bold truncate min-w-0">Edit Profile</h1>
       </div>
 
       <!-- Form -->
@@ -18,7 +18,9 @@
         <!-- Photo -->
         <div>
           <label class="block text-sm text-gray-500 mb-1">Profile Photo</label>
-          <input type="file" accept="image/*" @change="onFileChange" />
+          <div class="max-w-full overflow-hidden">
+            <input type="file" accept="image/*" @change="onFileChange" />
+          </div>
           <div v-if="preview" class="mt-2">
             <img
               :src="preview"

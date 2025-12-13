@@ -89,7 +89,7 @@
           <p class="text-sm">Tanggal: {{ formatDate(payment.payment_date) }}</p>
           <NuxtImg
             v-if="payment.proof"
-            :src="`https://api-grosiin.adacreativee.com/storage/${payment.proof}`"
+            :src="`${baseUrl}storage/${payment.proof}`"
             class="w-32 h-32 object-cover rounded-md mt-2"
             alt="Bukti pembayaran"
           />
@@ -265,6 +265,7 @@ const amount = ref("");
 const file = ref(null);
 const loading = ref(false);
 const isLoadingOrder = ref(true);
+const baseUrl = "https://backend-api.alokastore.com/";
 
 // Ambil detail order menggunakan useApi
 const { data, refresh, pending } = useApi(`/server/api/orders/${orderId}`, {

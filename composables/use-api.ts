@@ -3,10 +3,12 @@ import type { UseFetchOptions } from "#app";
 export function useApi<T = unknown>(request: string | Ref<string>, options: UseFetchOptions<T>) {
     // const toast = useToast();
     const session = useSession();
+    const tokenCookie = useCookie('access_token');
     return useFetch(request, {
         onRequest({ options }) {
-            if (session.token) {
-                options.headers.set("Authorization", `Bearer ${session.token}`);
+            const token = session.token || tokenCookie.value;
+            if (token) {
+                options.headers.set("Authorization", `Bearer ${token}`);
             }
         },
         onResponseError({ response }) {

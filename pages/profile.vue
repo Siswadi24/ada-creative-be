@@ -36,6 +36,11 @@
 
         <button
           class="flex items-center justify-between bg-white p-4 rounded-lg shadow hover:bg-gray-50 w-full"
+          @click="
+            peringatan(
+              'Fitur Pemberitahuan sedang dalam pengembangan dan akan segera hadir.'
+            )
+          "
         >
           <div class="flex items-center gap-3">
             <Icon name="lucide:bell" class="text-primary-600" size="20" />
@@ -46,6 +51,11 @@
 
         <button
           class="flex items-center justify-between bg-white p-4 rounded-lg shadow hover:bg-gray-50 w-full"
+          @click="
+            peringatan(
+              'Alamat Reseller sedang dalam pengembangan dan akan segera hadir.'
+            )
+          "
         >
           <div class="flex items-center gap-3">
             <Icon name="lucide:map-pin" class="text-primary-600" size="20" />
@@ -105,6 +115,9 @@
 </template>
 
 <script setup>
+import { storeToRefs } from "pinia";
+import { useSubmit } from "~/composables/use-submit";
+
 definePageMeta({
   middleware: ["must-auth"],
 });
@@ -112,9 +125,39 @@ definePageMeta({
 const session = useSession();
 const router = useRouter();
 const showLogoutConfirm = ref(false);
+const toast = useToast();
+const { token } = storeToRefs(session);
+
+const { execute: submitLogout } = useSubmit("/server/api/logout", {
+  server: false,
+  headers: {
+    Authorization: () => (token.value ? `Bearer ${token.value}` : ""),
+  },
+});
 
 async function handleLogout() {
-  await session.logout();
-  router.push("/login");
+  try {
+    await submitLogout({});
+  } catch {
+    toast.add({
+      title: "Gagal Logout",
+      description: "Terjadi kesalahan saat logout. Silakan coba lagi.",
+      color: "red",
+      icon: "i-heroicons-exclamation-triangle",
+    })
+  } finally {
+    await session.logout();
+    router.push("/login");
+    showLogoutConfirm.value = false;
+  }
+}
+
+function peringatan(message) {
+  toast.add({
+    title: "Fitur Belum Tersedia",
+    description: message,
+    color: "orange",
+    icon: "i-heroicons-clock",
+  });
 }
 </script>

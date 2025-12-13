@@ -1,6 +1,6 @@
 <template>
   <footer class="bg-[#10434E] text-white/90">
-    <div class="max-w-screen-xl mx-auto px-4 py-10">
+    <div class="w-full mx-auto px-4 py-10">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
         <!-- Alamat -->
         <div>
@@ -73,7 +73,7 @@
 import { computed } from 'vue'
 import { useApi } from '~/composables/use-api'
 
-const baseUrl = "https://api-grosiin.adacreativee.com/"
+const baseUrl = "https://backend-api.alokastore.com/"
 
 const { data: settingsData, pending: settingsPending, error: settingsError } = await useApi("/server/api/settings", {})
 
