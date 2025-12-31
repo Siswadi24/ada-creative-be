@@ -55,8 +55,8 @@ export default defineNuxtConfig({
     headers: {
       contentSecurityPolicy: {
         'default-src': ["'self'"],
-        'script-src': ["'self'", "https:", "'strict-dynamic'"],
-        'style-src': ["'self'", "'nonce-{{nonce}}'", "https:"],
+        'script-src': ["'self'", "https:", "'unsafe-inline'"],
+        'style-src': ["'self'", "'unsafe-inline'", "https:"],
         'font-src': ["'self'", "https:", 'https://fonts.gstatic.com', 'https://iconify.design', 'https://image.nuxt.com'],
         'img-src': ["'self'", 'data:', 'https://backend-api.alokastore.com'],
         'connect-src': ["'self'", 'https://backend-api.alokastore.com'],
