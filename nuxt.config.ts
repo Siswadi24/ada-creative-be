@@ -44,13 +44,13 @@ export default defineNuxtConfig({
       type: 'module',
     }
   },
-   security: {
+  security: {
     strict: false,
     nonce: true,
     ssg: {
       meta: true,
       hashScripts: true,
-      hashStyles: false 
+      hashStyles: false
     },
     headers: {
       contentSecurityPolicy: {
@@ -68,9 +68,9 @@ export default defineNuxtConfig({
         'manifest-src': ["'self'"],
         'media-src': ["'self'"]
       },
-      crossOriginEmbedderPolicy: 'require-corp',
+      crossOriginEmbedderPolicy: 'unsafe-none',
       crossOriginOpenerPolicy: 'same-origin',
-      crossOriginResourcePolicy: 'same-origin',
+      crossOriginResourcePolicy: 'cross-origin',
       xContentTypeOptions: 'nosniff',
       xDownloadOptions: 'noopen',
       xFrameOptions: 'DENY',
