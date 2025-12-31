@@ -6,7 +6,7 @@ export default defineNuxtConfig({
   fonts: {
     provider: 'none',
   },
-  modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/ui', "@pinia/nuxt", '@vite-pwa/nuxt'],
+  modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/ui', "@pinia/nuxt", '@vite-pwa/nuxt', 'nuxt-security'],
   pwa: {
     manifest: {
       name: 'AlokaStore',
@@ -43,6 +43,41 @@ export default defineNuxtConfig({
       enabled: true,
       type: 'module',
     }
+  },
+   security: {
+    strict: false,
+    nonce: true,
+    ssg: {
+      meta: true,
+      hashScripts: true,
+      hashStyles: false 
+    },
+    headers: {
+      contentSecurityPolicy: {
+        'default-src': ["'self'"],
+        'script-src': ["'self'", "https:", "'strict-dynamic'"],
+        'style-src': ["'self'", "'nonce-{{nonce}}'", "https:"],
+        'font-src': ["'self'", "https:", 'https://fonts.gstatic.com', 'https://iconify.design', 'https://image.nuxt.com'],
+        'img-src': ["'self'", 'data:', 'https://backend-api.alokastore.com'],
+        'connect-src': ["'self'", 'https://backend-api.alokastore.com'],
+        'frame-src': ["'none'"],
+        'object-src': ["'none'"],
+        'base-uri': ["'self'"],
+        'form-action': ["'self'"],
+        'frame-ancestors': ["'none'"],
+        'manifest-src': ["'self'"],
+        'media-src': ["'self'"]
+      },
+      crossOriginEmbedderPolicy: 'require-corp',
+      crossOriginOpenerPolicy: 'same-origin',
+      crossOriginResourcePolicy: 'same-origin',
+      xContentTypeOptions: 'nosniff',
+      xDownloadOptions: 'noopen',
+      xFrameOptions: 'DENY',
+      xPermittedCrossDomainPolicies: 'none',
+      xXSSProtection: '1'
+    },
+    sri: true
   },
   app: {
     head: {
