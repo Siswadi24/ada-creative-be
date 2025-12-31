@@ -77,26 +77,26 @@
             <div class="space-y-4">
               <div
                 class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                @click="copyToClipboard('myalokastore@gmail.com')">
+                @click="copyToClipboard(settings.email || '')">
                 <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center mr-3">
                   <Icon name="mdi:email" class="w-5 h-5 text-white" />
                 </div>
                 <div class="flex-1">
                   <h4 class="font-semibold text-gray-800">Email Support</h4>
-                  <p class="text-gray-600 text-sm">myalokastore@gmail.com</p>
+                  <p class="text-gray-600 text-sm">{{ settings.email || '' }}</p>
                 </div>
                 <Icon name="mdi:content-copy" class="w-4 h-4 text-gray-400" />
               </div>
 
               <div
                 class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                @click="copyToClipboard('08123456789')">
+                @click="copyToClipboard(settings.phone || '')">
                 <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center mr-3">
                   <Icon name="mdi:whatsapp" class="w-5 h-5 text-white" />
                 </div>
                 <div class="flex-1">
                   <h4 class="font-semibold text-gray-800">WhatsApp</h4>
-                  <p class="text-gray-600 text-sm">08123456789</p>
+                  <p class="text-gray-600 text-sm">{{ settings.phone || '' }}</p>
                 </div>
                 <Icon name="mdi:content-copy" class="w-4 h-4 text-gray-400" />
               </div>
@@ -107,7 +107,7 @@
                 </div>
                 <div class="flex-1">
                   <h4 class="font-semibold text-gray-800">Telepon</h4>
-                  <p class="text-gray-600 text-sm">(021) 1234-5678</p>
+                  <p class="text-gray-600 text-sm">{{ settings.phone || '' }}</p>
                 </div>
               </div>
             </div>
@@ -116,18 +116,18 @@
             <div class="space-y-4">
               <div
                 class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                @click="openLink('https://instagram.com/grosiin')">
+                @click="openLink(settings.instagram_link || '')">
                 <div class="w-10 h-10 bg-pink-500 rounded-lg flex items-center justify-center mr-3">
                   <Icon name="mdi:instagram" class="w-5 h-5 text-white" />
                 </div>
                 <div class="flex-1">
                   <h4 class="font-semibold text-gray-800">Instagram</h4>
-                  <p class="text-gray-600 text-sm">@grosiin</p>
+                  <p class="text-gray-600 text-sm">@aloka.store_</p>
                 </div>
                 <Icon name="mdi:open-in-new" class="w-4 h-4 text-gray-400" />
               </div>
 
-              <div
+              <!-- <div
                 class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                 @click="openLink('https://youtube.com/grosiin')">
                 <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center mr-3">
@@ -138,30 +138,30 @@
                   <p class="text-gray-600 text-sm">Grosiin Channel</p>
                 </div>
                 <Icon name="mdi:open-in-new" class="w-4 h-4 text-gray-400" />
-              </div>
+              </div> -->
 
               <div
                 class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                @click="openLink('https://shopee.co.id/grosiin')">
+                @click="openLink(settings.shopee_link || '')">
                 <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center mr-3">
                   <Icon name="mdi:shopping" class="w-5 h-5 text-white" />
                 </div>
                 <div class="flex-1">
                   <h4 class="font-semibold text-gray-800">Shopee</h4>
-                  <p class="text-gray-600 text-sm">Grosiin Official Store</p>
+                  <p class="text-gray-600 text-sm">Aloka.Store</p>
                 </div>
                 <Icon name="mdi:open-in-new" class="w-4 h-4 text-gray-400" />
               </div>
 
               <div
                 class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                @click="openLink('https://tiktok.com/@grosiin')">
+                @click="openLink(settings.tiktok_link || '')">
                 <div class="w-10 h-10 bg-black rounded-lg flex items-center justify-center mr-3">
                   <Icon name="mdi:play-circle" class="w-5 h-5 text-white" />
                 </div>
                 <div class="flex-1">
                   <h4 class="font-semibold text-gray-800">TikTok</h4>
-                  <p class="text-gray-600 text-sm">@grosiin</p>
+                  <p class="text-gray-600 text-sm">@aloka.store2</p>
                 </div>
                 <Icon name="mdi:open-in-new" class="w-4 h-4 text-gray-400" />
               </div>
@@ -175,6 +175,16 @@
 
 <script setup>
 const toast = useToast();
+const settingsStore = useSettingsStore();
+// Access settings state directly (it's a ref in the store)
+const settings = computed(() => settingsStore.settings);
+
+// Fetch settings on mount if not already available
+onMounted(async () => {
+  if (Object.keys(settings.value).length === 0) {
+    await settingsStore.fetchSettings();
+  }
+});
 
 // Function to copy text to clipboard
 const copyToClipboard = async (text) => {
@@ -188,7 +198,7 @@ const copyToClipboard = async (text) => {
       timeout: 3000
     });
   } catch (err) {
-    console.error("Gagal menyalin teks: ", err);
+    // console.error("Gagal menyalin teks: ", err);
     toast.add({
       title: 'Gagal!',
       description: 'Tidak dapat menyalin teks ke clipboard',
@@ -214,12 +224,12 @@ const openLink = (url) => {
 
 // SEO Meta
 useSeoMeta({
-  title: "Customer Support - Grosiin",
-  ogTitle: "Customer Support - Grosiin",
+  title: "Customer Support - AlokasStore",
+  ogTitle: "Customer Support - AlokasStore",
   description:
-    "Hubungi customer support Grosiin untuk bantuan dan informasi. Tersedia via WhatsApp, Email, Instagram, YouTube, dan Shopee.",
+    "Hubungi customer support AlokasStore untuk bantuan dan informasi. Tersedia via WhatsApp, Email, Instagram, YouTube, dan Shopee.",
   ogDescription:
-    "Hubungi customer support Grosiin untuk bantuan dan informasi. Tersedia via WhatsApp, Email, Instagram, YouTube, dan Shopee.",
+    "Hubungi customer support AlokasStore untuk bantuan dan informasi. Tersedia via WhatsApp, Email, Instagram, YouTube, dan Shopee.",
 });
 </script>
 

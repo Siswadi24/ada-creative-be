@@ -150,14 +150,15 @@ async function saveProfile() {
     showSuccessModal.value = true
     
   } catch (err) {
-    console.error("Update gagal:", err)
+    // console.error("Update gagal:", err)
     
     // Tampilkan error dengan toast atau alert
-    useNuxtApp().$toast?.add({
-      title: 'Error',
-      description: 'Gagal update profile! Silakan coba lagi.',
-      color: 'red'
-    }) || alert("Gagal update profile!")
+    toast.add({
+      title: "Gagal Memperbarui Profil",
+      description: "Terjadi kesalahan saat memperbarui profil. Silakan coba lagi.",
+      color: "red",
+      icon: "i-heroicons-exclamation-circle",
+    })
     
   } finally {
     isUpdating.value = false

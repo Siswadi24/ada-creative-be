@@ -58,7 +58,7 @@
                 v-if="showSecondaryButton"
                 color="gray"
                 variant="outline"
-                class="flex-1"
+                class="flex-1 text-black/50"
                 @click="handleSecondaryAction"
               >
                 {{ secondaryButtonText }}

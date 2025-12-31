@@ -14,14 +14,45 @@
       </UButton>
     </div>
 
+    <!-- Loading Skeleton -->
+    <div v-if="pending" class="space-y-5">
+      <div
+        v-for="i in 3"
+        :key="i"
+        class="bg-white border rounded-2xl p-5 shadow-sm space-y-4"
+      >
+        <div class="flex justify-between items-center">
+          <USkeleton class="h-5 w-1/3" />
+          <div class="flex gap-2">
+            <USkeleton class="h-6 w-20 rounded-full" />
+            <USkeleton class="h-6 w-24 rounded-full" />
+          </div>
+        </div>
+        <div class="space-y-3">
+          <div v-for="j in 2" :key="j" class="flex justify-between">
+            <USkeleton class="h-4 w-1/2" />
+            <USkeleton class="h-4 w-24" />
+          </div>
+        </div>
+        <div class="flex justify-between items-center pt-2">
+          <USkeleton class="h-4 w-16" />
+          <USkeleton class="h-6 w-32" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <USkeleton class="h-9 w-28 rounded-md" />
+          <USkeleton class="h-9 w-32 rounded-md" />
+        </div>
+      </div>
+    </div>
+
     <!-- Kalau kosong -->
-    <div v-if="!orders.length" class="flex flex-col items-center gap-4 py-12">
+    <div v-else-if="!orders.length" class="flex flex-col items-center gap-4 py-12">
       <NuxtImg width="280" format="webp" src="/assets/no-data-found.png" class="opacity-90" />
       <div class="text-center">
         <p class="text-gray-600 text-base">Belum ada pesanan</p>
         <p class="text-gray-400 text-sm mt-1">Mulai belanja untuk melihat pesanan Anda di sini</p>
       </div>
-      <UButton color="primary" class="mt-2" @click="navigateTo('/product')">
+      <UButton color="primary" class="mt-2 text-white" @click="navigateTo('/product')">
         Jelajahi Produk
       </UButton>
     </div>
@@ -83,9 +114,9 @@
         <!-- Tombol ke halaman payment/invoice -->
         <div class="flex flex-wrap justify-end gap-2">
           <UButton
-            color="gray"
             size="sm"
             variant="soft"
+            class="text-white bg-orange-600 uppercase"
             @click="navigateTo(`/orders/details/${order.id}`)"
           >
             <UIcon name="i-heroicons-eye" />
@@ -96,9 +127,9 @@
           <template v-if="order.status !== 'cancelled'">
             <!-- ✅ Konfirmasi Penerimaan Barang (cek dulu paling atas) -->
             <UButton
-              v-if="order.delivery_status === 'delivered'"
-              color="success"
+              v-if="order.delivery_status === 'shipped'"
               size="sm"
+              class="bg-yellow-400 text-white uppercase"
               @click="navigateTo(`/confirmpenerimaanbarang/${order.id}`)"
             >
               <UIcon name="i-heroicons-check-circle" />
@@ -111,8 +142,8 @@
                 order.status === 'confirmed' && order.payment_status === 'paid'
               "
               size="sm"
-              color="gray"
               variant="solid"
+              class="bg-gray-500 text-white uppercase"
               @click="navigateTo(`/payment/${order.id}`)"
             >
               <UIcon name="i-heroicons-ticket" />
@@ -124,6 +155,7 @@
               v-else
               color="primary"
               size="sm"
+              class="text-white uppercase"
               @click="navigateTo(`/payment/${order.id}`)"
             >
               <UIcon name="i-heroicons-credit-card" />
@@ -141,10 +173,10 @@ definePageMeta({
   middleware: ["must-auth"],
 });
 
-// Fetch orders list menggunakan useApi
-const { data } = await useApi("/server/api/orders", {
+const { data, pending } = useApi("/server/api/orders", {
   server: false,
-});
+  lazy: true
+})
 
 const orders = computed(() => data.value?.data || []);
 

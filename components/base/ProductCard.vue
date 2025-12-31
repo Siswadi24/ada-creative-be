@@ -9,7 +9,7 @@
     <NuxtImg
       format="webp"
       :src="image"
-      :alt="`${title} - Grosiin`"
+      :alt="`${title} - AlokaStore`"
       class="aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-105 rounded-xl"
     />
 

@@ -4,12 +4,14 @@
     <main class="main-layout">
       <slot />
     </main>
-    <LayoutsFooter />
+    <LayoutsFooter v-if="!isProductPage" />
     <LayoutsBottomNavbar class="md:hidden"/>
   </div>
 </template>
 
 <script setup>
+const route = useRoute();
+const isProductPage = computed(() => route.path === '/product');
 </script>
 
 <style scoped>

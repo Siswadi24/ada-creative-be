@@ -26,13 +26,13 @@
       <span class="text-xs sm:text-sm font-medium truncate">Layanan</span>
     </NuxtLink>
     
-    <!-- <NuxtLink 
-      to="/contact" 
+    <NuxtLink 
+      to="/cart" 
       class="flex flex-col items-center px-2 py-2 rounded-lg text-gray-600 min-w-0 flex-shrink-0"
     >
-      <span><Icon name="i-lucide-phone" class="text-xl sm:text-2xl mb-1" /></span>
-      <span class="text-xs sm:text-sm font-medium truncate">Kontak</span>
-    </NuxtLink> -->
+      <span><Icon name="i-lucide-shopping-cart" class="text-xl sm:text-2xl mb-1" /></span>
+      <span class="text-xs sm:text-sm font-medium truncate">Keranjang</span>
+    </NuxtLink>
     
     <NuxtLink 
       to="/profile" 

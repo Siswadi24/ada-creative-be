@@ -10,7 +10,7 @@
             <div class="flex w-full items-center justify-between">
               <!-- Search Icon -->
               <button
-                class="text-gray-600 hover:text-black"
+                class="text-gray-600 hover:text-black w-full items-start flex"
                 @click="showSearchView = true"
               >
                 <Icon name="i-lucide-search" class="text-xl cursor-pointer" />
@@ -78,6 +78,14 @@
               :slug="product.slug"
             />
           </div>
+
+          <!-- Sentinel Element for Infinite Scroll -->
+          <div
+            v-if="products.data && visibleCount < products.data.length"
+            ref="loadMoreTrigger"
+            class="h-10 w-full"
+          ></div>
+
           <div
             v-if="isLoadingMore"
             class="col-span-full flex justify-center mt-4"
@@ -102,17 +110,19 @@ const isFloating = ref(false);
 const showSearchView = ref(false);
 
 const scrollContainer = ref(null);
+const loadMoreTrigger = ref(null); // Reference for IntersectionObserver
 const showLeftArrow = ref(false);
 const showRightArrow = ref(true);
 const visibleCount = ref(8); // Awalnya tampilkan 8
 const increment = 6;
 const isLoadingMore = ref(false);
+let observer = null;
 
 useSeoMeta({
-  title: "Grosiin - Produk Grosir Terlengkap",
-  ogTitle: "Grosiin - Temukan Produk Terlengkap Hanya di Grosiin",
+  title: "AlokaStore - Produk Grosir Terlengkap",
+  ogTitle: "AlokaStore - Temukan Produk Terlengkap Hanya di AlokaStore",
   description:
-    "Temukan berbagai produk grosir berkualitas dengan harga terbaik di Grosiin.",
+    "Temukan berbagai produk grosir berkualitas dengan harga terbaik di AlokaStore.",
   keywords: "produk grosir, grosirin, belanja grosir, harga grosir",
 });
 
@@ -144,19 +154,17 @@ const visibleProducts = computed(() => {
 // Fetch cart count dari API
 const { data: cartData } = await useApi("/server/api/cart", {
   server: false,
-  default: () => ({ items: { data: [] } })
+  default: () => ({ items: { data: [] } }),
 });
 
 const countCart = computed(() => {
-  return cartData.value?.items?.data?.length || 0;
+  return cartData.value?.items?.total || 0;
 });
 
-const handleInfiniteScroll = async () => {
-  const scrollBottom =
-    window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
-
+const handleInfiniteScroll = async (entries) => {
+  const target = entries[0];
   if (
-    scrollBottom &&
+    target.isIntersecting &&
     !isLoadingMore.value &&
     visibleCount.value < products.value.data?.length
   ) {
@@ -167,6 +175,18 @@ const handleInfiniteScroll = async () => {
 
     visibleCount.value += increment;
     isLoadingMore.value = false;
+
+    // Cek apakah masih perlu load lagi (jika layar belum penuh)
+    await nextTick();
+    if (loadMoreTrigger.value) {
+      const rect = loadMoreTrigger.value.getBoundingClientRect();
+      if (rect.top < window.innerHeight) {
+        // Sentinel masih terlihat, load lagi
+        // Kita panggil observer callback secara manual atau biarkan user scroll
+        // Untuk "auto fill", kita bisa panggil rekursif dengan mock entry
+        handleInfiniteScroll([{ isIntersecting: true }]);
+      }
+    }
   }
 };
 
@@ -200,7 +220,22 @@ const _scrollRight = () => {
 onMounted(() => {
   window.addEventListener("scroll", handleWindowScroll);
   window.addEventListener("resize", handleCategoryScroll);
-  window.addEventListener("scroll", handleInfiniteScroll);
+
+  // Setup IntersectionObserver
+  observer = new IntersectionObserver(handleInfiniteScroll, {
+    root: null,
+    rootMargin: "200px",
+    threshold: 0.1,
+  });
+
+  watch(loadMoreTrigger, (newEl, oldEl) => {
+    if (oldEl) observer.unobserve(oldEl);
+    if (newEl) observer.observe(newEl);
+  });
+
+  if (loadMoreTrigger.value) {
+    observer.observe(loadMoreTrigger.value);
+  }
 
   const hasSearchQuery = route.query.search || route.query.category;
   if (hasSearchQuery) {
@@ -218,7 +253,9 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", handleWindowScroll);
   window.removeEventListener("resize", handleCategoryScroll);
-  window.removeEventListener("scroll", handleInfiniteScroll);
+  if (observer) {
+    observer.disconnect();
+  }
 });
 
 // Gunakan posisi top-24 seperti sebelumnya

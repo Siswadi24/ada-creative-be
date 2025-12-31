@@ -1,12 +1,18 @@
 <template>
   <div>
     <nav class="bg-white fixed w-full z-20 top-0 start-0">
-      <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+      <div v-if="settingsPending" class="bg-gray-100 text-center py-2">
+        <p>Memuat pengaturan...</p>
+      </div>
+      <div v-else-if="settingsError" class="bg-red-500 text-white text-center py-2">
+        <p>{{ settingsError }}.</p>
+      </div>
+      <div v-else class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <a href="/" class="flex items-center space-x-1 rtl:space-x-reverse">
           <NuxtImg
             v-if="settings.logo_path"
-            :src="`${baseUrl}storage/${settings.logo_path}`"
-            alt="Logo Grosiin"
+            :src="`${baseUrl}/storage/${settings.logo_path}`"
+            alt="Logo AlokaStore"
             width="120"
             class="object-contain"
             format="webp"
@@ -39,12 +45,12 @@
                 class="block py-2 px-3 text-black/80 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0"
               >Layanan</NuxtLink>
             </li>
-            <!-- <li>
+            <li>
               <NuxtLink
-                to="/contact"
+                to="/cart"
                 class="block py-2 px-3 text-black/80 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0"
-              >Kontak</NuxtLink>
-            </li> -->
+              >Keranjang</NuxtLink>
+            </li>
             <li>
               <NuxtLink
                 to="/profile"
@@ -59,22 +65,18 @@
 </template>
 
 <script setup>
-import { computed } from "vue"
-import { NuxtLink } from "#components"
-import { useApi } from "~/composables/use-api"
+const config = useRuntimeConfig()
+const baseUrl = config.public.baseUrl
+// const baseUrl = "https://backend-api.alokastore.com/"
+const settingsStore = useSettingsStore()
 
-const baseUrl = "https://backend-api.alokastore.com/"
+const settingsPending = computed(() => settingsStore.isLoading)
+const settingsError = computed(() => settingsStore.error)
+const settings = computed(() => settingsStore.settings)
 
-// ambil data settings dari API (kayak footer)
-const { data: settingsData, pending: settingsPending, error: settingsError } =
-  await useApi("/server/api/settings", {})
-
-const settings = computed(() => {
-  const data = settingsData.value?.data || {}
-  return {
-    ...data,
-    site_name: data.site_name || "Grosiin",
-    logo_path: data.logo_path || "",
+onMounted(async () => {
+  if (Object.keys(settingsStore.settings).length === 0) {
+    await settingsStore.fetchSettings()
   }
 })
 </script>

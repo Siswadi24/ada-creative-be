@@ -162,7 +162,7 @@
         <UButton
           color="primary"
           size="lg"
-          class="w-full"
+          class="w-full justify-center text-white font-bold"
           :loading="isSubmitting"
           :disabled="!isFormValid"
           @click="handleSubmitOrder"
@@ -228,9 +228,7 @@ const expeditionOptions = computed(() => {
   if (!shippingResponse.value?.data) return [];
 
   return shippingResponse.value.data.map((shipping) => ({
-    label: `${shipping.name} - ${shipping.service} - ${parseInt(
-      shipping.estimation
-    )} hari`,
+    label: `${shipping.name} - ${shipping.service}`,
     value: shipping.id.toString(), // Menggunakan ID sebagai value
     id: shipping.id, // Menyimpan ID shipping
     cost: parseInt(shipping.cost),
@@ -261,7 +259,7 @@ onMounted(() => {
       checkoutItems.value = checkoutData.value.items || [];
       totalAmount.value = checkoutData.value.total || 0;
     } catch (error) {
-      console.error("Error parsing checkout data:", error);
+      // console.error("Error parsing checkout data:", error);
       checkoutItems.value = [];
       totalAmount.value = 0;
     }
@@ -294,7 +292,7 @@ async function handleSubmitOrder() {
       note: form.note || "",
     };
 
-    console.log("Submitting order with data:", orderPayload);
+    // console.log("Submitting order with data:", orderPayload);
 
     const { data: response } = await useApi("/server/api/orders", {
       method: "POST",
@@ -308,7 +306,7 @@ async function handleSubmitOrder() {
     apiResponse.value = response.value;
     showSuccessModal.value = true;
   } catch (error) {
-    console.error("Error creating order:", error);
+    // console.error("Error creating order:", error);
 
     let errorMessage = "Gagal membuat pesanan";
     if (error.data?.message) {

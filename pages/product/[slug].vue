@@ -84,7 +84,7 @@
           <UButton
             size="lg"
             variant="outline"
-            class="cursor-pointer"
+            class="cursor-pointer text-black/65 bg-green-50 hover:bg-green-100 text-base sm:text-lg md:text-lg lg:text-xl md:p-2 xl:p-4 font-bold"
             @click="handleAddToCart"
           >
             Masukkan Keranjang
@@ -93,10 +93,10 @@
             size="lg"
             variant="solid"
             color="primary"
-            class="cursor-pointer"
-            @click="handleBuyNow"
+            class="cursor-pointer text-base sm:text-lg md:text-lg lg:text-xl p-2 text-white font-bold"
+            @click="handleAddToCart"
           >
-            Beli Melalui WhatsApp
+            Beli Langsung
           </UButton>
         </div>
       </div>
@@ -199,11 +199,11 @@ const breadcrumbs = computed(() => [
 watchEffect(() => {
   if (product.value) {
     useSeoMeta({
-      title: `Grosiin | ${product.value.name || ""}`,
-      ogTitle: `Grosiin | ${product.value.name || ""}`,
+      title: `AlokaStore | ${product.value.name || ""}`,
+      ogTitle: `AlokaStore | ${product.value.name || ""}`,
       ogDescription:
         product.value.description || "Deskripsi produk tidak tersedia.",
-      ogImage: items.value?.[0] || "/logo/Logo-Grosiin.png",
+      ogImage: items.value?.[0] || "/logo/Logo-AlokaStore.png",
       ogType: "product",
       description:
         product.value.description || "Deskripsi produk tidak tersedia.",
@@ -247,7 +247,7 @@ async function handleAddToCart() {
 
   // Check if there's an error
   if (error.value) {
-    console.error("Gagal menambahkan ke keranjang:", error.value);
+    // console.error("Gagal menambahkan ke keranjang:", error.value);
 
     // Store error response and show error modal
     errorResponse.value = error.value.data || {
@@ -282,34 +282,30 @@ function handleErrorAction() {
 }
 
 // ✅ Beli Langsung via WhatsApp
-function handleBuyNow() {
-  const phoneNumber =
-    settingsData.value?.data?.phone?.replace(/^0/, "62") || "6285800445350"; // Convert 08xx to 628xx
-  const name = product.value?.name || "Produk Tanpa Nama";
-  const price = product.value?.price || 0;
-  const formattedPrice = formatNumber(price);
-  const qty = quantity.value;
-  const totalPrice = price * qty;
-  const formattedTotalPrice = formatNumber(totalPrice);
+// function handleBuyNow() {
+//   const phoneNumber =
+//     settingsData.value?.data?.phone?.replace(/^0/, "62") || "6285800445350";
+//   const name = product.value?.name || "Produk Tanpa Nama";
+//   const price = product.value?.price || 0;
+//   const formattedPrice = formatNumber(price);
+//   const qty = quantity.value;
+//   const totalPrice = price * qty;
+//   const formattedTotalPrice = formatNumber(totalPrice);
+//   const shareUrl = `${window.location.origin}/api/share/product/${slug.value}`;
+//   const message = `${shareUrl}
 
-  // Use share URL for better WhatsApp preview with image
-  const shareUrl = `${window.location.origin}/api/share/product/${slug.value}`;
+// 🛒 *Pesanan Baru!*
 
-  // Format message with share URL for rich preview
-  const message = `${shareUrl}
+// 📦 *Produk:* ${name}
+// 💵 *Harga Satuan:* Rp${formattedPrice}
+// 📊 *Jumlah:* ${qty}
+// 💰 *Total Harga:* Rp${formattedTotalPrice}
 
-🛒 *Pesanan Baru!*
+// Saya ingin memesan produk ini. Mohon bantuannya, terima kasih 🙏`.trim();
 
-📦 *Produk:* ${name}
-💵 *Harga Satuan:* Rp${formattedPrice}
-📊 *Jumlah:* ${qty}
-💰 *Total Harga:* Rp${formattedTotalPrice}
-
-Saya ingin memesan produk ini. Mohon bantuannya, terima kasih 🙏`.trim();
-
-  const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-    message
-  )}`;
-  window.open(url, "_blank");
-}
+//   const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+//     message
+//   )}`;
+//   window.open(url, "_blank");
+// }
 </script>

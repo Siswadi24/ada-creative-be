@@ -4,7 +4,7 @@
     ref="carouselRef"
     :items="items"
     :ui="{ item: 'basis-full' }"
-    class="rounded-lg overflow-hidden w-full max-h-[235px] mx-auto aspec-[3.39/1]"
+    class="rounded-lg overflow-hidden w-full mx-auto aspec-[3.39/1]"
     autoplay
     indicators
   >

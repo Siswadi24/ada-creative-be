@@ -42,7 +42,7 @@
       <div
         v-for="item in cartItems"
         :key="item.id"
-        class="bg-white rounded-lg border border-gray-200 shadow-sm p-3 sm:p-4 overflow-hidden"
+        class="bg-white rounded-lg border border-gray-200 shadow-sm p-3 sm:p-4 overflow-hidden relative"
       >
         <div class="flex flex-wrap sm:flex-nowrap items-start gap-3">
           <!-- Checkbox -->
@@ -65,7 +65,7 @@
           <!-- Product Details -->
           <div class="flex-1 min-w-0">
             <div class="flex justify-between items-start gap-2">
-              <div class="flex-1 pr-2 max-w-full">
+              <div class="flex-1 pr-8 sm:pr-2 max-w-full">
                 <h3 class="font-semibold text-gray-900 break-words truncate">
                   {{ item.product.name }}
                 </h3>
@@ -89,12 +89,25 @@
                 variant="ghost"
                 color="red"
                 size="sm"
-                class="text-red-500 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
+                class="text-red-500 hover:text-red-700 hover:bg-red-50 flex-shrink-0 absolute top-3 right-3 sm:static"
                 @click="() => removeFromCart(item.id)"
               />
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Loading indicator for infinite scroll -->
+      <div
+        v-if="hasMorePages"
+        ref="scrollContainer"
+        class="py-4 flex justify-center"
+      >
+        <UIcon
+          v-if="loadingMore"
+          name="i-heroicons-arrow-path"
+          class="animate-spin w-6 h-6 text-gray-400"
+        />
       </div>
 
       <!-- Selected items summary -->
@@ -117,7 +130,7 @@
         <UButton
           color="primary"
           size="lg"
-          class="w-full"
+          class="flex items-center justify-center w-full text-white font-bold"
           :disabled="!selectedItems.length"
           @click="handleCheckout"
         >
@@ -147,23 +160,22 @@ definePageMeta({
   middleware: ["must-auth"],
 });
 
-// Ambil cart menggunakan useApi
 const { data, refresh } = await useApi("/server/api/cart", {
   server: false,
   default: () => ({ items: { data: [] } }),
-  retry: 1
+  retry: 1,
 });
 
-const cartItems = computed(() => data.value?.items?.data || []);
-
-// State untuk select items
 const selectedItems = ref([]);
-
-// State untuk success modal
 const showSuccessModal = ref(false);
 const apiResponse = ref(null);
+// Infinite Scroll Loading
+const loadingMore = ref(false);
+const currentPage = ref(1);
+const lastPage = computed(() => data.value?.items?.last_page || 1);
+const hasMorePages = computed(() => currentPage.value < lastPage.value);
+const scrollContainer = ref(null);
 
-// Computed untuk select all
 const isAllSelected = computed({
   get: () =>
     selectedItems.value.length > 0 &&
@@ -177,14 +189,12 @@ const isAllSelected = computed({
   },
 });
 
-// Total selected items
 const selectedTotal = computed(() => {
   return cartItems.value
     .filter((item) => selectedItems.value.includes(item.id))
     .reduce((sum, item) => sum + parseFloat(item.subtotal), 0);
 });
 
-// Functions
 function toggleSelectAll() {
   isAllSelected.value = !isAllSelected.value;
 }
@@ -198,31 +208,26 @@ function toggleSelectItem(itemId) {
   }
 }
 
-// Menu items untuk dropdown
 function _getMenuItems(item) {
-  console.log("🎯 Creating menu items for item:", item.id);
-
+  // console.log("🎯 Creating menu items for item:", item.id);
   const menuItems = [
     [
       {
         label: "Hapus dari keranjang",
         icon: "i-heroicons-trash",
-        value: "delete", // Gunakan value untuk identifier
+        value: "delete",
       },
     ],
   ];
-
-  console.log("📋 Menu items created:", menuItems);
+  // console.log("📋 Menu items created:", menuItems);
   return menuItems;
 }
 
-// Handle menu selection
 function _handleMenuSelect(selectedItem, cartItem) {
-  console.log("🖱️ Menu item selected:", selectedItem);
-  console.log("🖱️ Cart item:", cartItem);
-
+  // console.log("🖱️ Menu item selected:", selectedItem);
+  // console.log("🖱️ Cart item:", cartItem);
   if (selectedItem.value === "delete") {
-    console.log("�️ Delete action triggered for item:", cartItem.id);
+    // console.log("�️ Delete action triggered for item:", cartItem.id);
     removeFromCart(cartItem.id);
   }
 }
@@ -238,16 +243,13 @@ async function removeFromCart(itemId) {
       method: "DELETE",
     });
 
-    // Remove from selected items jika ada
     const index = selectedItems.value.indexOf(itemId);
     if (index > -1) {
       selectedItems.value.splice(index, 1);
     }
-
     // Refresh cart data
     await refresh();
 
-    // Store API response and show success modal
     apiResponse.value = response.value;
     showSuccessModal.value = true;
   } catch (err) {
@@ -266,23 +268,68 @@ async function removeFromCart(itemId) {
   }
 }
 
-// Format angka
+const cartItems = ref([]);
+watch(
+  () => data.value?.items?.data,
+  (newItems) => {
+    if (newItems && (currentPage.value === 1 || cartItems.value.length === 0)) {
+      cartItems.value = [...newItems];
+      currentPage.value = data.value?.items?.current_page || 1;
+    }
+  },
+  { immediate: true, deep: true }
+);
+
+async function loadMoreItems() {
+  if (loadingMore.value || !hasMorePages.value) return;
+
+  loadingMore.value = true;
+  const nextPage = currentPage.value + 1;
+
+  try {
+    const response = await $fetch(`/server/api/cart?page=${nextPage}`, {
+      headers: {
+        Authorization: `Bearer ${useCookie("access_token").value}`,
+      },
+    });
+
+    if (response?.items?.data) {
+      cartItems.value = [...cartItems.value, ...response.items.data];
+      currentPage.value = response.items.current_page;
+    }
+  } catch (error) {
+    console.error("Failed to load more items:", error);
+  } finally {
+    loadingMore.value = false;
+  }
+}
+
+onMounted(() => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting) {
+        loadMoreItems();
+      }
+    },
+    { rootMargin: "100px" }
+  );
+
+  if (scrollContainer.value) {
+    observer.observe(scrollContainer.value);
+  }
+});
+
 function formatNumber(num) {
   return new Intl.NumberFormat("id-ID").format(num);
 }
 
-// Checkout - redirect ke halaman checkout dengan selected items
 async function handleCheckout() {
   if (!selectedItems.value.length) {
     return alert("Pilih item yang ingin di-checkout");
   }
-
-  // Get selected cart items
   const selectedCartItems = cartItems.value.filter((item) =>
     selectedItems.value.includes(item.id)
   );
-
-  // Store selected items di localStorage untuk dikirim ke halaman checkout
   localStorage.setItem(
     "checkoutItems",
     JSON.stringify({
@@ -290,12 +337,9 @@ async function handleCheckout() {
       total: selectedTotal.value,
     })
   );
-
-  // Redirect ke halaman checkout
   navigateTo("/checkout");
 }
 
-// Handle success modal actions
 function handleSuccessAction() {
   showSuccessModal.value = false;
   // Tetap di halaman cart
@@ -303,7 +347,6 @@ function handleSuccessAction() {
 
 function handleSecondaryAction() {
   showSuccessModal.value = false;
-  // Redirect ke halaman produk untuk lanjut belanja
   navigateTo("/product");
 }
 </script>

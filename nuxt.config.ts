@@ -3,13 +3,15 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
-
+  fonts: {
+    provider: 'none',
+  },
   modules: ['@nuxt/eslint', '@nuxt/image', '@nuxt/ui', "@pinia/nuxt", '@vite-pwa/nuxt'],
-  pwa:{
+  pwa: {
     manifest: {
-      name: 'Grosiin',
-      short_name: 'Grosiin',
-      description: 'Grosiin - Your one-stop shop for all your needs',
+      name: 'AlokaStore',
+      short_name: 'AlokaStore',
+      description: 'AlokaStore - Your one-stop shop for all your needs',
       theme_color: '#ffffff',
       background_color: '#ffffff',
       display: 'standalone',
@@ -17,12 +19,17 @@ export default defineNuxtConfig({
       start_url: '/',
       icons: [
         {
-          src: '/logo/Logo-Grosiin.png',
+          src: '/favicon.png',
+          sizes: '96x96',
+          type: 'image/png'
+        },
+        {
+          src: '/logo/Logo-AlokaStore.png',
           sizes: '512x512',
           type: 'image/png'
         },
         {
-          src: '/logo/Logo-Grosiin.png',
+          src: '/logo/Logo-AlokaStore.png',
           sizes: '192x192',
           type: 'image/png'
         }
@@ -43,18 +50,17 @@ export default defineNuxtConfig({
       viewport: 'width=device-width, initial-scale=1',
       meta: [
         { name: 'theme-color', content: '#ffffff' },
-        { name: 'description', content: 'Grosiin - Your one-stop shop for all your needs' },
-        { name: 'keywords', content: 'grosiin, shopping, online store, reseller' },
-        { name: 'author', content: 'Grosiin Team' },
+        { name: 'description', content: 'AlokaStore - Your one-stop shop for all your needs' },
+        { name: 'keywords', content: 'AlokaStore, shopping, online store, reseller' },
+        { name: 'author', content: 'AlokaStore Team' },
         { name: 'google-site-verification', content: 'your-google-site-verification-code' },
       ],
-      title: 'Grosiin',
+      titleTemplate: '%s - AlokaStore',
+      title: 'AlokaStore',
       link: [
-        {
-          rel: "icon",
-          type: "image/png",
-          href: "/logo/Logo-Grosiin.png"
-        },
+        { rel: 'icon', type: 'image/png', href: '/favicon.png', sizes: '96x96' },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'shortcut icon', href: '/favicon.ico' },
         {
           rel: "preconnect",
           href: "https://fonts.googleapis.com"
@@ -76,6 +82,11 @@ export default defineNuxtConfig({
     "/registration/**": { ssr: false },
     "/cart": { ssr: false },
   },
+  runtimeConfig: {
+    public: {
+      baseUrl: `${process.env.NUXT_PUBLIC_BASE_URL}`,
+    }
+  }
   // routeRules: {
   //   '/api/**': { proxy: `${import.meta.env.NUXT_BASE_URL}/**` },
   // }

@@ -164,17 +164,19 @@
             <span class="font-medium">Rp{{ formatNumber(p.amount) }}</span>
           </div>
         </div>
-        <p v-else-if="order.payment_status === 'failed'">Pembayaran telah digagalkan.</p>
+        <p v-else-if="order.payment_status === 'failed'">
+          Pembayaran telah digagalkan.
+        </p>
         <p v-else class="text-gray-500">Belum ada pembayaran.</p>
       </div>
 
       <div class="flex flex-wrap gap-2 justify-end">
         <UButton
           v-if="
-            order.status !== 'cancelled' &&
-            order.delivery_status === 'delivered'
+            order.status !== 'cancelled' && order.delivery_status === 'shipped'
           "
           color="success"
+          class="bg-yellow-400 text-white uppercase"
           @click="navigateTo(`/confirmpenerimaanbarang/${order.id}`)"
         >
           <UIcon name="i-heroicons-check-circle" />
@@ -184,14 +186,18 @@
           v-if="order.status === 'confirmed' && order.payment_status === 'paid'"
           color="gray"
           variant="solid"
+          class="bg-gray-500 text-white uppercase"
           @click="navigateTo(`/payment/${order.id}`)"
         >
           <UIcon name="i-heroicons-ticket" />
           Lihat Invoice
         </UButton>
         <UButton
-          v-if="order.payment_status !== 'paid' && order.payment_status !== 'failed'"
+          v-if="
+            order.payment_status !== 'paid' && order.payment_status !== 'failed'
+          "
           color="primary"
+          class="text-white uppercase"
           @click="navigateTo(`/payment/${order.id}`)"
         >
           <UIcon name="i-heroicons-credit-card" />
@@ -200,13 +206,14 @@
         <UButton
           v-if="safeUrl(order?.invoice_url)"
           color="primary"
-          variant="soft"
+          class="text-white uppercase"
           @click="openInvoice(order.invoice_url)"
         >
           <UIcon name="i-heroicons-document" />
           Buka Invoice
         </UButton>
-        <UButton color="gray" variant="subtle" @click="router.back()">
+        <UButton color="gray" class="text-[#6B7280] uppercase bg-gray-100" @click="router.back()">
+          <UIcon name="i-heroicons-arrow-left" />
           Kembali
         </UButton>
       </div>

@@ -1,13 +1,13 @@
 <template>
   <footer class="bg-[#10434E] text-white/90">
-    <div class="w-full mx-auto px-4 py-10">
+    <div class="max-w-screen-xl mx-auto px-4 py-10">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
         <!-- Alamat -->
         <div>
           <!-- Logo dari API jika tersedia -->
           <NuxtImg
             v-if="settings.logo_path"
-            :src="`${baseUrl}storage/${settings.logo_path}`"
+            :src="`${baseUrl}/storage/${settings.logo_path}`"
             :alt="settings.site_name || 'Logo Aplikasi'"
             class="mb-4"
             width="120"
@@ -16,7 +16,7 @@
 
           <!-- Nama aplikasi dinamis -->
           <h3 class="text-lg font-semibold mb-2">
-            {{ settings.site_name || "Grosiin" }}
+            {{ settings.site_name || "AlokaStore" }}
           </h3>
 
           <div v-if="settingsPending" class="text-sm leading-relaxed">
@@ -30,11 +30,10 @@
           </p>
 
           <div class="flex gap-4 mt-4 text-white text-xl">
-            <a href="#"><Icon name="mdi:instagram" /></a>
-            <a href="#"><Icon name="mdi:facebook" /></a>
-            <a href="#"><Icon name="mdi:linkedin" /></a>
-            <a href="#"><Icon name="mdi:youtube" /></a>
+            <a :href="settings.whatsapp_link" target="_blank"><Icon name="mdi:instagram" /></a>
             <a :href="settings.whatsapp_link" target="_blank"><Icon name="mdi:whatsapp" /></a>
+            <a :href="settings.tiktok_link" target="_blank"><Icon name="mdi:music-note" /></a>
+            <a :href="settings.shopee_link" target="_blank"><Icon name="mdi:shopify" /></a>
           </div>
         </div>
 
@@ -43,7 +42,7 @@
           <h3 class="text-lg font-semibold mb-3">Tentang Kami</h3>
           <ul class="space-y-2 text-sm">
             <li>
-              <NuxtLink to="/contact" class="hover:underline">Kontak</NuxtLink>
+              <NuxtLink to="/services" class="hover:underline">Layanan</NuxtLink>
             </li>
             <li>
               <NuxtLink to="/product" class="hover:underline">Produk</NuxtLink>
@@ -63,28 +62,25 @@
 
       <!-- Footer Bottom -->
       <div class="text-center text-sm mt-10 border-t border-white/20 pt-4">
-        © {{ new Date().getFullYear() }} {{ settings.site_name || "Grosiin" }}. All rights reserved
+        © {{ new Date().getFullYear() }} {{ settings.site_name || "AlokaStore" }}. All rights reserved
       </div>
     </div>
   </footer>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useApi } from '~/composables/use-api'
+const config = useRuntimeConfig()
+const baseUrl = config.public.baseUrl
+// const baseUrl = "https://backend-api.alokastore.com/"
+const settingsStore = useSettingsStore()
 
-const baseUrl = "https://backend-api.alokastore.com/"
+const settingsPending = computed(() => settingsStore.isLoading)
+const settingsError = computed(() => settingsStore.error)
+const settings = computed(() => settingsStore.settings)
 
-const { data: settingsData, pending: settingsPending, error: settingsError } = await useApi("/server/api/settings", {})
-
-const settings = computed(() => {
-  const data = settingsData.value?.data || {}
-  return {
-    ...data,
-    site_name: data.site_name || "",
-    address: data.address || "",
-    logo_path: data.logo_path || "",
-    whatsapp_link: data.whatsapp_link || "#"
+onMounted(async () => {
+  if (Object.keys(settingsStore.settings).length === 0) {
+    await settingsStore.fetchSettings()
   }
 })
 </script>

@@ -24,18 +24,17 @@
           <div
             class="w-full md:w-1/4 space-y-6 transition-all duration-500 ease-in-out transform md:translate-x-0 -translate-y-4 opacity-0 animate-title-banner"
           >
-            <p class="text-black/85 font-semibold md:pt-5">
-              #JadilahPartnerKami
+            <p class="text-black/85 font-semibold md:pt-10">
+              #ResellerAlokaStore
             </p>
             <h1
               class="text-4xl xl:text-5xl font-bold leading-tight text-transparent bg-clip-text animate-gradient bg-gradient-to-r from-black via-orange-500 to-orange-400"
             >
-              Let's Join Partner <br />
-              With Us
+              Bangun Bisnismu Bersama <br />
+              Aloka Store
             </h1>
             <p class="text-black/85">
-              Benang Bintang menyediakan semua kebutuhan anda. Jadilah partner
-              kami dan dapatkan produk kami dengan harga yang berbeda.
+              Aloka Store menghadirkan peluang usaha retail yang mudah dan terus berkembang. Dengan satu kali pendaftaran, Anda mendapatkan akses ke berbagai produk mulai dari kosmetik, aksesoris, dan masih banyak lagi dengan harga termurah.
             </p>
             <div class="flex gap-4">
               <button
@@ -198,7 +197,7 @@
               :key="`product-${productPopuler.id}`"
               :title="productPopuler.name"
               :price="parseInt(productPopuler.price)"
-              :discount="20"
+              :discount="0"
               :units="productPopuler.unit || ''"
               :sale="productPopuler.sale || 0"
               :image="
@@ -228,7 +227,7 @@
         <div
           class="flex flex-col text-base text-center my-10 font-medium text-purple-500"
         >
-          <h1>Tanya Benang Bintang?</h1>
+          <h1>Tanya Alokastore?</h1>
           <span class="text-black/80 font-bold text-xl">
             Frequently Asked Question
           </span>
@@ -328,9 +327,9 @@ definePageMeta({
 });
 
 useSeoMeta({
-  title: "Grosiin - Partner Reseller",
+  title: "AlokaStore - Partner Reseller",
   description:
-    "Bergabunglah dengan Grosiin sebagai reseller dan nikmati berbagai keuntungan menarik. Dapatkan akses ke produk berkualitas dengan harga khusus.",
+    "Bergabunglah dengan AlokaStore sebagai reseller dan nikmati berbagai keuntungan menarik. Dapatkan akses ke produk berkualitas dengan harga khusus.",
   keywords: "reseller, grosirin, partner, produk grosir, bisnis online",
 });
 
@@ -467,7 +466,7 @@ function handleDaftarReseller() {
       )}`;
       window.open(url, "_blank");
     } catch (error) {
-      console.error("Failed to get contact info:", error);
+      // console.error("Failed to get contact info:", error);
       // Fallback to manual contact
       const fallbackMessage =
         "Halo, saya tertarik untuk menjadi reseller. Mohon informasi lebih lanjut.";
@@ -506,7 +505,7 @@ const benefits = computed(() => {
         : "/assets/no-data-found.png",
     }));
   } catch (error) {
-    console.error("Error processing benefits data:", error);
+    // console.error("Error processing benefits data:", error);
     return [];
   }
 });
@@ -524,7 +523,7 @@ const FAQ = computed(() => {
       description: faq.answer || "Jawaban tidak tersedia",
     }));
   } catch (error) {
-    console.error("Error processing FAQ data:", error);
+    // console.error("Error processing FAQ data:", error);
     return [];
   }
 });
@@ -568,7 +567,7 @@ onMounted(() => {
   setTimeout(() => {
     if (isPageLoading.value) {
       isPageLoading.value = false;
-      console.warn("Loading timeout reached - forcing content display");
+      // console.warn("Loading timeout reached - forcing content display");
     }
   }, 8000);
 });

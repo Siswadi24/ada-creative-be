@@ -20,7 +20,9 @@
         class="w-full max-w-sm bg-white p-8 rounded shadow-md"
         @submit.prevent="handleSubmit"
       >
-        <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">Masukan Akun Anda</h2>
+        <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">
+          Masukan Akun Anda
+        </h2>
 
         <!-- ✅ Pesan error umum -->
         <div
@@ -38,6 +40,7 @@
           <input
             v-model="form.email"
             type="email"
+            autocomplete="email"
             class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring text-black/80 focus:border-blue-300"
             placeholder="Masukan email"
           />
@@ -55,6 +58,7 @@
             id="password"
             v-model="form.password"
             :type="showPassword ? 'text' : 'password'"
+            autocomplete="current-password"
             class="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring focus:border-blue-300 text-black/80 pr-10"
             placeholder="Masukan password"
           />

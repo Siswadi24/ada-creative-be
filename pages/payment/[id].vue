@@ -16,9 +16,15 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoadingOrder" class="bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-6">
+    <div
+      v-if="isLoadingOrder"
+      class="bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-6"
+    >
       <div class="flex justify-center items-center py-8">
-        <UIcon name="i-heroicons-arrow-path" class="animate-spin h-8 w-8 text-primary-500" />
+        <UIcon
+          name="i-heroicons-arrow-path"
+          class="animate-spin h-8 w-8 text-primary-500"
+        />
         <span class="ml-2 text-gray-600">Memuat detail pesanan...</span>
       </div>
     </div>
@@ -69,9 +75,8 @@
             </UBadge>
           </p>
           <p v-if="order.shipping_cost">
-            <strong>Ongkos Kirim:</strong> Rp {{
-              formatNumber(order.shipping_cost)
-            }}
+            <strong>Ongkos Kirim:</strong> Rp
+            {{ formatNumber(order.shipping_cost) }}
           </p>
         </div>
         <div>
@@ -85,11 +90,11 @@
       <div v-if="order.payments && order.payments.length > 0" class="mt-4">
         <h3 class="font-medium mb-2">Bukti Pembayaran:</h3>
         <div v-for="payment in order.payments" :key="payment.id" class="mb-2">
-          <p class="text-sm">Amount: Rp{{ formatNumber(payment.amount) }}</p>
+          <p class="text-sm">Total: Rp{{ formatNumber(payment.amount) }}</p>
           <p class="text-sm">Tanggal: {{ formatDate(payment.payment_date) }}</p>
           <NuxtImg
             v-if="payment.proof"
-            :src="`${baseUrl}storage/${payment.proof}`"
+            :src="`${baseUrl}/storage/${payment.proof}`"
             class="w-32 h-32 object-cover rounded-md mt-2"
             alt="Bukti pembayaran"
           />
@@ -126,7 +131,7 @@
       </p>
     </div>
 
-    <!-- Barcode Pembayaran - Tampilkan jika belum confirmed dan paid dan shipping_cost ada nilainya -->
+    <!-- Metode Pembayaran - Tampilkan jika belum confirmed dan paid dan shipping_cost ada nilainya -->
     <div
       v-if="
         !(order?.status === 'confirmed' && order?.payment_status === 'paid') &&
@@ -139,32 +144,120 @@
       class="bg-white rounded-lg border border-gray-200 shadow-sm p-4 mb-6"
     >
       <h2 class="text-lg font-semibold text-gray-900 mb-4">
-        Informasi Pembayaran
+        Metode Pembayaran
       </h2>
 
-      <div class="text-center">
-        <p class="text-sm text-gray-600 mb-4">
-          Scan barcode di bawah ini untuk melakukan pembayaran
-        </p>
+      <div v-if="paymentMethodStore.loading" class="flex justify-center py-4">
+        <UIcon
+          name="i-heroicons-arrow-path"
+          class="animate-spin h-6 w-6 text-primary-500"
+        />
+      </div>
 
-        <div class="flex justify-center mb-4">
-          <NuxtImg
-            src="/assets/barcode.gif"
-            alt="Barcode Pembayaran"
-            class="max-w-xs rounded-md border"
-            format="gif"
-          />
+      <div v-else>
+        <!-- Pilihan Metode Pembayaran -->
+        <div class="flex flex-wrap gap-2 mb-6">
+          <button
+            v-for="method in paymentMethodStore.activePaymentMethods"
+            :key="method.id"
+            :class="[
+              'px-4 py-2 rounded-lg text-sm font-medium transition-colors border',
+              selectedPaymentMethod?.id === method.id
+                ? 'bg-primary-50 border-primary-500 text-primary-700'
+                : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50',
+            ]"
+            @click="selectedPaymentMethod = method"
+          >
+            {{ method.name }}
+          </button>
         </div>
 
-        <div class="bg-blue-50 rounded-lg p-4 text-center">
-          <p class="text-sm text-blue-800 font-medium">
-            Total yang harus dibayar: Rp{{
-              formatNumber(order?.total_price || 0)
-            }}
-          </p>
-          <p class="text-xs text-blue-600 mt-1">
-            Setelah transfer, upload bukti pembayaran di bawah ini
-          </p>
+        <!-- Konten Metode Pembayaran -->
+        <div v-if="selectedPaymentMethod" class="text-center">
+          <!-- Tampilan QRIS -->
+          <div v-if="selectedPaymentMethod.code === 'qris'">
+            <p class="text-sm text-gray-600 mb-4">
+              Scan QRIS di bawah ini untuk melakukan pembayaran
+            </p>
+            <div class="flex justify-center mb-4">
+              <div
+                v-for="account in selectedPaymentMethod.accounts"
+                :key="account.id"
+              >
+                <p class="text-sm font-bold mb-2">
+                  Nama Penerima: {{ account.nama_penerima }}
+                </p>
+                <NuxtImg
+                  v-if="account.qris_image"
+                  :src="`${baseUrl}/storage/${account.qris_image}`"
+                  alt="QRIS Code"
+                  class="max-w-xs rounded-md border"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Tampilan Bank Transfer -->
+          <div v-else-if="selectedPaymentMethod.code === 'bank_transfer'">
+            <p class="text-sm text-gray-600 mb-4">
+              Silakan transfer ke rekening berikut:
+            </p>
+            <div class="space-y-4">
+              <div
+                v-for="account in selectedPaymentMethod.accounts"
+                :key="account.id"
+                class="bg-gray-50 p-4 rounded-lg border border-gray-200 text-left max-w-md mx-auto"
+              >
+                <div class="flex justify-between items-start">
+                  <div>
+                    <p class="text-sm text-gray-500">Bank</p>
+                    <p class="font-bold text-lg text-gray-900">
+                      {{ account.nama_bank }}
+                    </p>
+                  </div>
+                  <UIcon
+                    name="i-heroicons-building-library"
+                    class="text-gray-400 w-8 h-8"
+                  />
+                </div>
+
+                <div class="mt-3">
+                  <p class="text-sm text-gray-500">Nomor Rekening</p>
+                  <div class="flex items-center gap-2">
+                    <p class="font-mono text-xl font-bold text-gray-900">
+                      {{ account.no_rekening }}
+                    </p>
+                    <UButton
+                      icon="i-heroicons-clipboard"
+                      color="gray"
+                      variant="ghost"
+                      size="xs"
+                      @click="copyToClipboard(account.no_rekening)"
+                    />
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <p class="text-sm text-gray-500">Atas Nama</p>
+                  <p class="font-medium text-gray-900">
+                    {{ account.nama_penerima }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info Total Bayar -->
+          <div class="bg-blue-50 rounded-lg p-4 text-center mt-6">
+            <p class="text-sm text-blue-800 font-medium">
+              Total yang harus dibayar: Rp{{
+                formatNumber(order?.total_price || 0)
+              }}
+            </p>
+            <p class="text-xs text-blue-600 mt-1">
+              Setelah transfer, upload bukti pembayaran di bawah ini
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -257,6 +350,8 @@
 definePageMeta({
   middleware: ["must-auth"],
 });
+const config = useRuntimeConfig();
+const baseUrl = config.public.baseUrl;
 
 const route = useRoute();
 const orderId = computed(() => route.params.id);
@@ -265,20 +360,33 @@ const amount = ref("");
 const file = ref(null);
 const loading = ref(false);
 const isLoadingOrder = ref(true);
-const baseUrl = "https://backend-api.alokastore.com/";
+const paymentMethodStore = usePaymentMethodStore();
+const selectedPaymentMethod = ref(null);
+const toast = useToast();
+
+// Polling interval reference
+let pollingInterval = null;
+const ONE_MINUTE = 60 * 1000;
 
 // Ambil detail order menggunakan useApi
-const { data, refresh, pending } = useApi(`/server/api/orders/${orderId}`, {
-  server: false,
-  immediate: true,
-  watch: [orderId],
-});
+const { data, refresh, pending } = useApi(
+  `/server/api/orders/${orderId.value}`,
+  {
+    server: false,
+    immediate: true,
+    watch: [orderId],
+  }
+);
 
 // Memastikan data order selalu diperbarui
-watch(data, () => {
-  order.value = data.value?.data || data.value;
-  isLoadingOrder.value = false;
-}, { immediate: true });
+watch(
+  data,
+  () => {
+    order.value = data.value?.data || data.value;
+    isLoadingOrder.value = false;
+  },
+  { immediate: true }
+);
 
 // Memantau status loading
 watch(pending, (newPending) => {
@@ -286,14 +394,72 @@ watch(pending, (newPending) => {
 });
 
 // Fungsi untuk memuat ulang data order
-const refreshOrder = () => {
-  isLoadingOrder.value = true;
-  refresh();
+const refreshOrder = async () => {
+  // Hanya refresh jika tidak ada proses loading yang sedang berjalan (untuk polling)
+  // isLoadingOrder.value = true; // Jangan set loading true saat polling agar tidak flicker
+  await refresh();
 };
 
-// Memuat ulang data saat halaman dimuat
+// Polling untuk mengecek update ongkir secara real-time
+const startPolling = () => {
+  // Hentikan polling jika sudah ada
+  if (pollingInterval) clearInterval(pollingInterval);
+
+  pollingInterval = setInterval(async () => {
+    // Hanya refresh jika status order belum selesai atau ongkir masih 0
+    const needsShippingCost =
+      !order.value?.shipping_cost ||
+      parseFloat(order.value?.shipping_cost) <= 0;
+    const isUnpaid = order.value?.payment_status === "unpaid";
+
+    if (needsShippingCost && isUnpaid) {
+      await refreshOrder();
+    } else {
+      // Jika sudah ada ongkir atau sudah dibayar, hentikan polling
+      stopPolling();
+    }
+  }, ONE_MINUTE); // Cek setiap 1 menit
+};
+
+const stopPolling = () => {
+  if (pollingInterval) {
+    clearInterval(pollingInterval);
+    pollingInterval = null;
+  }
+};
+
+// Memuat ulang data saat halaman dimuat dan mulai polling
 onMounted(() => {
   refreshOrder();
+  startPolling();
+  paymentMethodStore.fetchPaymentMethods();
+});
+
+// Set default selected payment method
+watch(
+  () => paymentMethodStore.activePaymentMethods,
+  (methods) => {
+    if (methods && methods.length > 0 && !selectedPaymentMethod.value) {
+      selectedPaymentMethod.value = methods[0];
+    }
+  },
+  { immediate: true }
+);
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text);
+  toast.add({
+      title: 'Berhasil!',
+      description: 'Teks berhasil disalin ke clipboard',
+      icon: 'i-heroicons-check-circle',
+      color: 'success',
+      timeout: 3000
+    });
+}
+
+// Bersihkan polling saat komponen di-unmount
+onUnmounted(() => {
+  stopPolling();
 });
 
 // Auto-fill amount dengan total order
@@ -380,7 +546,7 @@ async function submitPayment() {
   formData.append("payment_proof", file.value);
 
   try {
-    await useApi(`/server/api/orders/${orderId}/payment-proof`, {
+    await useApi(`/server/api/orders/${orderId.value}/payment-proof`, {
       method: "POST",
       body: formData,
     });
@@ -389,7 +555,7 @@ async function submitPayment() {
 
     // Refresh order data
     const { data: refreshedData } = await useApi(
-      `/server/api/orders/${orderId}`,
+      `/server/api/orders/${orderId.value}`,
       {
         server: false,
       }
@@ -399,7 +565,7 @@ async function submitPayment() {
     // Reset form
     file.value = null;
   } catch (err) {
-    console.error("Error uploading payment proof:", err);
+    // console.error("Error uploading payment proof:", err);
     let errorMessage = "Gagal upload bukti pembayaran";
     if (err.data?.message) {
       errorMessage = err.data.message;
